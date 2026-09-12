@@ -43,5 +43,6 @@ Body Body::update(std::vector<Body> const& universe, Parameters const& par)
   next_state.acc_ = compute_acceleration(universe, par);
   next_state.vel_ = compute_velocity(universe, par);
   next_state.pos_ = compute_position(universe, par);
+  return next_state
 }
 } // namespace nbody
