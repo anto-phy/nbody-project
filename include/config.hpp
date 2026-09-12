@@ -1,4 +1,11 @@
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
+
 namespace nbody {
-constexpr inline double G{6.67430e-11};
-constexpr inline double c{299792.458};
+inline constexpr double G{6.67430e-11};
+inline constexpr double c{299792.458};
+struct parameters
+{};
 } // namespace nbody
+
+#endif
