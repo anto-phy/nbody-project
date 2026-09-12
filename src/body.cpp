@@ -23,12 +23,12 @@ Vector3D<double> Body::compute_acceleration(std::vector<Body> const& universe,
       universe.begin(), universe.end(), Vector3D<double>{0., 0., 0.},
       [&, this](Vector3D<double> acc, const Body& other) {
         if (&other != this) {
-          Vector3D<double> dr = other.pos_ - pos_;
+          Vector3D<double> dr{other.pos_ - pos_};
 
-          double r2 = dr.norm2();
+          double r2{dr.norm2()};
 
-          double factor =
-              G * other.mass_ / std::pow(r2 + par.epsilon * par.epsilon, 1.5);
+          double factor{G * other.mass_
+                        / std::pow(r2 + par.epsilon * par.epsilon, 1.5)};
 
           return acc + factor * dr;
         }
