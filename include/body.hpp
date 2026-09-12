@@ -1,8 +1,10 @@
 #ifndef NBODY_BODY_HPP
 #define NBODY_BODY_HPP
 
+#include "config.hpp"
 #include "vector3d.hpp"
 #include <cmath>
+#include <stdexcept>
 #include <vector>
 
 namespace nbody {
@@ -21,13 +23,22 @@ class Body
       , rad_{r}
       , pos_{p}
       , vel_{v}
-  {}
+  {
+    if (m <= 0) {
+      throw std::runtime_error(
+          "Mass of a body can't be less or equal to zero.\n");
+    }
+    if (r <= 0) {
+      throw std::runtime_error(
+          "Radius of a body can't be less or equal to zero.\n");
+    }
+  }
 
   Vector3D<double> const& get_position() const;
 
   Vector3D<double> const& get_velocity() const;
 
-  Body update(std::vector<Body>, double dt);
+  Body update(std::vector<Body>, Parameters par);
 };
 
 } // namespace nbody
