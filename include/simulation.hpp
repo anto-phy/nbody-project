@@ -6,7 +6,7 @@
 
 namespace nbody {
 
-void update_physics(std::vector<Body>);
+void update_physics(std::vector<Body>&, Parameters);
 
 }
 
