@@ -48,8 +48,8 @@ cmake --build build --config Release --target test
 
 # To-do list
 
-- [ ] Initialize the repository
-- [ ] Implement `Body`
+- [X] Initialize the repository
+- [X] Implement `Body`
 - [ ] Implement the simulation
 - [ ] Implement numerical integration
 - [ ] Add tests
