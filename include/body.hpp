@@ -35,8 +35,6 @@ class Body
   }
 
   Body update(std::vector<Body>, Parameters);
-
-  
 };
 
 } // namespace nbody
