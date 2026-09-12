@@ -42,7 +42,7 @@ class Body
   Vector3D<double> const& get_velocity() const;
 
   Vector3D<double> const& get_acceleration() const;
-  
+
   double get_mass() const;
 
   double get_radius() const;

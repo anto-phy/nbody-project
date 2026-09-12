@@ -2,6 +2,7 @@
 #include "config.hpp"
 #include <numeric>
 #include <vector>
+
 namespace nbody {
 
 Vector3D<double> const& Body::get_position() const
