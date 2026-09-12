@@ -7,6 +7,7 @@
 namespace nbody {
 
 void update_physics(std::vector<Body>);
+
 }
 
 #endif

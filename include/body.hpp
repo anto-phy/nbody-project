@@ -34,11 +34,9 @@ class Body
     }
   }
 
-  Vector3D<double> const& get_position() const;
-
-  Vector3D<double> const& get_velocity() const;
-
   Body update(std::vector<Body>, Parameters);
+
+  
 };
 
 } // namespace nbody
