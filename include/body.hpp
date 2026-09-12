@@ -38,7 +38,7 @@ class Body
 
   Vector3D<double> const& get_velocity() const;
 
-  Body update(std::vector<Body>, Parameters par);
+  Body update(std::vector<Body>, Parameters);
 };
 
 } // namespace nbody
