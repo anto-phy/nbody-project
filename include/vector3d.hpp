@@ -2,6 +2,7 @@
 #define VECTOR3D_HPP
 
 #include <cmath>
+#include <stdexcept>
 
 namespace nbody {
 
@@ -38,10 +39,10 @@ struct Vector3
 
   constexpr Vector3& operator/=(T scalar)
   {
-    x /= scalar;
-    y /= scalar;
-    z /= scalar;
-    return *this;
+    if (scalar == 0) {
+      throw std::runtime_error("division by zero.\n");
+    }
+    return *this *= 1. / scalar;
   }
 
   constexpr T distance2(const Vector3& vec) const
