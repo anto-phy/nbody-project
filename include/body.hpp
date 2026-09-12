@@ -36,13 +36,27 @@ class Body
           "Radius of a body can't be less or equal to zero.\n");
     }
   }
+
+  Vector3D<double> const& get_position() const;
+
+  Vector3D<double> const& get_velocity() const;
+
+  Vector3D<double> const& get_acceleration() const;
+  
+  double get_mass() const;
+
+  double get_radius() const;
+
   Body update(std::vector<Body> const&, Parameters const&);
+
   Vector3D<double> compute_position(std::vector<Body> const&,
-                                    Parameters const&);
-  Vector3D<double> compute_velocity(std::vector<Body> const&,
-                                    Parameters const&);
+                                    Parameters const&) const;
+
+  Vector3D<double> compute_velocity(Vector3D<double> const&,
+                                    Parameters const&) const;
+
   Vector3D<double> compute_acceleration(std::vector<Body> const&,
-                                        Parameters const&);
+                                        Parameters const&) const;
 };
 
 } // namespace nbody
