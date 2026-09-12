@@ -35,13 +35,15 @@ cmake --build build --config Release --target test
 # Project structure
 ```text
 .
-├── CMakeLists.txt
-├── README.md
+├── apps/
 ├── include/
 ├── src/
-├── LICENSE
+├── tests/
+├── .clang-format
 ├── .gitignore
-└── tests/
+├── CMakeLists.txt
+├── LICENSE
+└── README.md
 ```
 
 # To-do list
