@@ -14,17 +14,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Dependencies
 # --------------------------------------------------
 
-set(CMAKE_MODULE_PATH
-    "${PROJECT_SOURCE_DIR}/modules/"
-    ${CMAKE_MODULE_PATH}
+find_package(Magnum REQUIRED
+    GL
+    Shaders
+    MeshTools
+    Primitives
+    Sdl2Application
 )
-
-# Corrade
-add_subdirectory(corrade EXCLUDE_FROM_ALL)
-
-# Magnum
-set(MAGNUM_WITH_SDL2APPLICATION ON CACHE BOOL "" FORCE)
-add_subdirectory(magnum EXCLUDE_FROM_ALL)
 
 # --------------------------------------------------
 # Compiler checks / assertions
@@ -32,6 +28,7 @@ add_subdirectory(magnum EXCLUDE_FROM_ALL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_definitions(_GLIBCXX_ASSERTIONS)
+
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_definitions(
         _LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE
@@ -71,17 +68,17 @@ add_executable(nbody
 
 target_include_directories(nbody
     PRIVATE
-        src
+        include
 )
 
 target_link_libraries(nbody
     PRIVATE
         Magnum::Magnum
+        Magnum::Application
         Magnum::GL
         Magnum::Shaders
         Magnum::MeshTools
         Magnum::Primitives
-        Magnum::Platform
 )
 
 # --------------------------------------------------
@@ -98,7 +95,12 @@ if(BUILD_TESTING)
 
     target_include_directories(nbody.t
         PRIVATE
-            src
+            include
+    )
+
+    target_link_libraries(nbody.t
+        PRIVATE
+            Magnum::Magnum
     )
 
     add_test(
