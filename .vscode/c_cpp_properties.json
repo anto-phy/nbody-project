@@ -7,7 +7,9 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "/opt/homebrew/include",
-                "/opt/homebrew/opt/magnum/include"
+                "/opt/homebrew/include/SDL2",
+                "/opt/homebrew/opt/magnum/include",
+                "/opt/homebrew/opt/corrade/include"
             ],
             "cppStandard": "c++20"
         }
