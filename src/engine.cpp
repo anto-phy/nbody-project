@@ -55,7 +55,6 @@ void Engine::drawEvent()
       Magnum::Matrix4::translation(Magnum::Vector3::zAxis(-300.0f));
 
   _pbrShader.setProjectionMatrix(projection).setCameraMatrix(camera);
-
   // Render bodies
   for (const auto& body : _bodies) {
     // Note: Ensure get_position() and get_radius() public getters exist in your
