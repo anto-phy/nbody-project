@@ -19,6 +19,14 @@ $$
 # Requirements
 - C++20
 - CMake
+- Magnum
+
+# Magnum
+To install Magnum via package manager we follow the [Getting started](https://doc.magnum.graphics/magnum/getting-started.html) page. Following **option B** we install Magnum and let CMake find it. Using MacOS we provide an essential installation guide:
+```shell
+brew install --HEAD mosra/magnum/corrade
+brew install --HEAD mosra/magnum/magnum
+```
 
 # Build
 ```shell
