@@ -22,7 +22,7 @@ Engine::Engine(const Arguments& arguments)
       Magnum::MeshTools::compile(Magnum::Primitives::icosphereSolid(3));
 
   // Setup PBR shader and light source at the center
-  _pbrShader = Magnum::Shaders::PbrMetallicRoughness{};
+  _pbrShader = Magnum::Shaders::PhongGL{};
   _pbrShader.setLightPositions({{0.0f, 0.0f, 0.0f, 1.0f}})
       .setLightColors({Magnum::Color3{1.0f, 0.9f, 0.8f} * 5.0f});
 
