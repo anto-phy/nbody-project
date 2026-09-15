@@ -71,22 +71,34 @@ void Engine::mouseScrollEvent(MouseScrollEvent& event)
 void Engine::render_body(const Body& body, const Magnum::Matrix4& projection,
                          const Magnum::Matrix4& camera)
 {
-  float x      = static_cast<float>(body.get_position().x * _visualScale);
-  float y      = static_cast<float>(body.get_position().y * _visualScale);
-  float z      = static_cast<float>(body.get_position().z * _visualScale);
+  float x = static_cast<float>(body.get_position().x * _visualScale);
+  float y = static_cast<float>(body.get_position().y * _visualScale);
+  float z = static_cast<float>(body.get_position().z * _visualScale);
   // Exaggerate small bodies so planets remain visible at solar-system scale.
   float radius = static_cast<float>(body.get_radius() * _visualScale * 50.0);
-  radius = Magnum::Math::max(radius, 2.0f);
+  radius       = Magnum::Math::max(radius, 2.0f);
 
   Magnum::Matrix4 model = Magnum::Matrix4::translation({x, y, z})
                         * Magnum::Matrix4::scaling(Magnum::Vector3{radius});
 
   Magnum::Matrix4 transformation = camera * model;
 
+  Magnum::Color4 bodyColor;
+  double mass = body.get_mass();
+
+  if (mass > 1.0e29) {
+    bodyColor = {1.0f, 0.9f, 0.2f, 1.0f}; // Stars: Yellow/White
+  } else if (mass > 4.0e24) {
+    bodyColor = {0.2f, 0.6f, 1.0f, 1.0f}; // Earth/Venus: Blueish
+  } else {
+    bodyColor = {0.8f, 0.4f, 0.2f,
+                 1.0f}; // Mars/Mercury/Asteroids: Reddish/Dusty
+  }
+
   _shader.setProjectionMatrix(projection)
       .setTransformationMatrix(transformation)
       .setNormalMatrix(transformation.normalMatrix())
-      .setDiffuseColor(Magnum::Color4{0.2f, 0.6f, 1.0f, 1.0f});
+      .setDiffuseColor(bodyColor); // Apply dynamic color
 
   _shader.draw(_sphereMesh);
 }
