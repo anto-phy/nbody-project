@@ -47,7 +47,10 @@ class Body
 
   double get_radius() const;
 
-  Body update(std::vector<Body> const&, Parameters const&);
+  Body with_position(Vector3D<double> const&) const;
+
+  Body with_velocity_and_acceleration(Vector3D<double> const&,
+                                      Parameters const&) const;
 
   Vector3D<double> compute_position(std::vector<Body> const&,
                                     Parameters const&) const;

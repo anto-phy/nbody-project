@@ -1,9 +1,11 @@
 #include "engine.hpp"
+#include "generator.hpp"
 #include "simulation.hpp"
 
 #include <Magnum/GL/DefaultFramebuffer.h>
 #include <Magnum/GL/Renderer.h>
 #include <Magnum/Math/Color.h>
+#include <Magnum/Math/Functions.h>
 #include <Magnum/Math/Matrix4.h>
 #include <Magnum/MeshTools/Compile.h>
 #include <Magnum/Primitives/Icosphere.h>
@@ -21,16 +23,49 @@ Engine::Engine(const Arguments& arguments)
   _sphereMesh =
       Magnum::MeshTools::compile(Magnum::Primitives::icosphereSolid(3));
 
-  // Configurazione Shader PhongGL
   _shader = Magnum::Shaders::PhongGL{};
-  _shader.setLightPositions({{0.0f, 0.0f, 0.0f, 1.0f}})
+  _shader.setLightPositions({{0.0f, 100.0f, 100.0f, 1.0f}})
       .setLightColors({Magnum::Color3{1.0f, 0.95f, 0.8f} * 3.0f})
-      .setAmbientColor(Magnum::Color3{0.05f});
+      .setAmbientColor(Magnum::Color3{0.2f});
 
-  // Inizializzazione corpi fisici
-  _bodies.push_back(Body(1.989e30, 6.96e8, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}));
-  _bodies.push_back(
-      Body(5.972e24, 6.37e6, {1.496e11, 0, 0}, {0, 29780, 0}, {0, 0, 0}));
+  Magnum::GL::defaultFramebuffer.clearColor(
+      Magnum::Color4{0.02f, 0.02f, 0.04f, 1.0f});
+
+  // Load generated system
+  _bodies = SystemGenerator::solar_system();
+}
+
+void Engine::mousePressEvent(MouseEvent& event)
+{
+  if (event.button() == MouseEvent::Button::Left) {
+    _lastMousePosition = event.position();
+  }
+}
+
+void Engine::mouseMoveEvent(MouseMoveEvent& event)
+{
+  if (event.buttons() & MouseMoveEvent::Button::Left) {
+    Magnum::Vector2i delta = event.position() - _lastMousePosition;
+
+    _cameraYaw += delta.x() * 0.5f;
+    _cameraPitch += delta.y() * 0.5f;
+
+    // Clamp pitch to prevent camera flipping upside down
+    _cameraPitch = Magnum::Math::clamp(_cameraPitch, -89.0f, 89.0f);
+
+    _lastMousePosition = event.position();
+    redraw();
+  }
+}
+
+void Engine::mouseScrollEvent(MouseScrollEvent& event)
+{
+  if (event.offset().y() != 0) {
+    // Scroll up = Zoom in, Scroll down = Zoom out
+    _cameraRadius -= event.offset().y() * 20.0f;
+    _cameraRadius = Magnum::Math::max(5.0f, _cameraRadius);
+    redraw();
+  }
 }
 
 void Engine::render_body(const Body& body, const Magnum::Matrix4& projection,
@@ -39,16 +74,15 @@ void Engine::render_body(const Body& body, const Magnum::Matrix4& projection,
   float x      = static_cast<float>(body.get_position().x * _visualScale);
   float y      = static_cast<float>(body.get_position().y * _visualScale);
   float z      = static_cast<float>(body.get_position().z * _visualScale);
+  // Exaggerate small bodies so planets remain visible at solar-system scale.
   float radius = static_cast<float>(body.get_radius() * _visualScale * 50.0);
+  radius = Magnum::Math::max(radius, 2.0f);
 
-  // 1. Matrice di trasformazione del modello (posizione e scala nel mondo)
   Magnum::Matrix4 model = Magnum::Matrix4::translation({x, y, z})
                         * Magnum::Matrix4::scaling(Magnum::Vector3{radius});
 
-  // 2. Combina vista (camera) e modello per PhongGL
   Magnum::Matrix4 transformation = camera * model;
 
-  // 3. Configura lo shader (senza setCameraMatrix)
   _shader.setProjectionMatrix(projection)
       .setTransformationMatrix(transformation)
       .setNormalMatrix(transformation.normalMatrix())
@@ -62,18 +96,18 @@ void Engine::drawEvent()
   Magnum::GL::defaultFramebuffer.clear(Magnum::GL::FramebufferClear::Color
                                        | Magnum::GL::FramebufferClear::Depth);
 
-  // 1. Calcolo dello stato fisico successivo (gestisce aggiunte/rimozioni di
-  // corpi)
   nbody::update_physics(_bodies, _params);
 
-  // 2. Preparazione matrici di vista
   Magnum::Matrix4 projection = Magnum::Matrix4::perspectiveProjection(
       Magnum::Deg(60.0f), Magnum::Vector2{windowSize()}.aspectRatio(), 0.1f,
-      1000.0f);
-  Magnum::Matrix4 camera =
-      Magnum::Matrix4::translation(Magnum::Vector3::zAxis(-300.0f));
+      5000.0f);
 
-  // 3. Rendering dinamico di ogni entità
+  // Compute orbit camera matrix using pitch, yaw, and zoom distance
+  Magnum::Matrix4 camera =
+      Magnum::Matrix4::translation(Magnum::Vector3::zAxis(-_cameraRadius))
+      * Magnum::Matrix4::rotationX(Magnum::Deg(_cameraPitch))
+      * Magnum::Matrix4::rotationY(Magnum::Deg(_cameraYaw));
+
   for (const auto& body : _bodies) {
     render_body(body, projection, camera);
   }

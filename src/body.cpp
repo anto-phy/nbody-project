@@ -30,6 +30,22 @@ double Body::get_radius() const
   return rad_;
 }
 
+Body Body::with_position(Vector3D<double> const& position) const
+{
+  Body result{*this};
+  result.pos_ = position;
+  return result;
+}
+
+Body Body::with_velocity_and_acceleration(
+    Vector3D<double> const& new_acceleration, Parameters const& par) const
+{
+  Body result{*this};
+  result.vel_ = compute_velocity(new_acceleration, par);
+  result.acc_ = new_acceleration;
+  return result;
+}
+
 Vector3D<double> Body::compute_position(std::vector<Body> const& universe,
                                         Parameters const& par) const
 {
@@ -62,12 +78,4 @@ Vector3D<double> Body::compute_acceleration(std::vector<Body> const& universe,
       });
 }
 
-Body Body::update(std::vector<Body> const& universe, Parameters const& par)
-{
-  Body next_state{*this};
-  next_state.acc_ = compute_acceleration(universe, par);
-  next_state.vel_ = compute_velocity(next_state.acc_, par);
-  next_state.pos_ = compute_position(universe, par);
-  return next_state;
-}
 } // namespace nbody

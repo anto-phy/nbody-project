@@ -64,6 +64,7 @@ add_executable(nbody
     src/body.cpp
     src/engine.cpp
     src/simulation.cpp
+    src/generator.cpp
 )
 
 target_include_directories(nbody
@@ -91,6 +92,7 @@ if(BUILD_TESTING)
         tests/main_test.cpp
         src/body.cpp
         src/simulation.cpp
+        src/generator.cpp
     )
 
     target_include_directories(nbody.t
