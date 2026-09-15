@@ -23,15 +23,15 @@ Engine::Engine(const Arguments& arguments)
   _sphereMesh =
       Magnum::MeshTools::compile(Magnum::Primitives::icosphereSolid(3));
 
+  // Tamed light intensity so specular reflections don't wash colors to white
   _shader = Magnum::Shaders::PhongGL{};
-  _shader.setLightPositions({{0.0f, 100.0f, 100.0f, 1.0f}})
-      .setLightColors({Magnum::Color3{1.0f, 0.95f, 0.8f} * 3.0f})
-      .setAmbientColor(Magnum::Color3{0.2f});
+  _shader.setLightPositions({{0.0f, 200.0f, 200.0f, 1.0f}})
+      .setLightColors({Magnum::Color3{1.0f, 0.98f, 0.9f}});
 
   Magnum::GL::defaultFramebuffer.clearColor(
-      Magnum::Color4{0.02f, 0.02f, 0.04f, 1.0f});
+      Magnum::Color4{0.01f, 0.01f, 0.02f, 1.0f});
 
-  // Load generated system
+  // Load system (e.g. KeplerianDisk or solar_system)
   _bodies = SystemGenerator::solar_system();
 }
 
@@ -74,9 +74,9 @@ void Engine::render_body(const Body& body, const Magnum::Matrix4& projection,
   float x = static_cast<float>(body.get_position().x * _visualScale);
   float y = static_cast<float>(body.get_position().y * _visualScale);
   float z = static_cast<float>(body.get_position().z * _visualScale);
-  // Exaggerate small bodies so planets remain visible at solar-system scale.
+
   float radius = static_cast<float>(body.get_radius() * _visualScale * 50.0);
-  radius       = Magnum::Math::max(radius, 2.0f);
+  radius       = Magnum::Math::max(radius, 1.f);
 
   Magnum::Matrix4 model = Magnum::Matrix4::translation({x, y, z})
                         * Magnum::Matrix4::scaling(Magnum::Vector3{radius});
@@ -84,21 +84,29 @@ void Engine::render_body(const Body& body, const Magnum::Matrix4& projection,
   Magnum::Matrix4 transformation = camera * model;
 
   Magnum::Color4 bodyColor;
-  double mass = body.get_mass();
 
-  if (mass > 1.0e29) {
-    bodyColor = {1.0f, 0.9f, 0.2f, 1.0f}; // Stars: Yellow/White
-  } else if (mass > 4.0e24) {
-    bodyColor = {0.2f, 0.6f, 1.0f, 1.0f}; // Earth/Venus: Blueish
+  // Central star / massive body check
+  if (body.get_mass() > 1.0e29) {
+    bodyColor = Magnum::Color4{1.0f, 0.85f, 0.2f, 1.0f}; // Bright Yellow/Gold
   } else {
-    bodyColor = {0.8f, 0.4f, 0.2f,
-                 1.0f}; // Mars/Mercury/Asteroids: Reddish/Dusty
+    // Dynamic color gradient based on velocity norm (Cool Blue -> Fast
+    // Orange/Red)
+    float speed  = static_cast<float>(body.get_velocity().norm());
+    float factor = Magnum::Math::clamp(speed / 45000.0f, 0.0f, 1.0f);
+
+    Magnum::Color4 slowColor{0.2f, 0.6f, 1.0f, 1.0f}; // Cyan/Blue
+    Magnum::Color4 fastColor{1.0f, 0.3f, 0.1f, 1.0f}; // Red/Orange
+
+    bodyColor = Magnum::Math::lerp(slowColor, fastColor, factor);
   }
 
+  // Set ambient color matching body color so unlit sides don't render gray
   _shader.setProjectionMatrix(projection)
       .setTransformationMatrix(transformation)
       .setNormalMatrix(transformation.normalMatrix())
-      .setDiffuseColor(bodyColor); // Apply dynamic color
+      .setAmbientColor(bodyColor.rgb() * 0.35f)
+      .setDiffuseColor(bodyColor)
+      .setSpecularColor(Magnum::Color4{0.2f, 0.2f, 0.2f, 1.0f});
 
   _shader.draw(_sphereMesh);
 }
